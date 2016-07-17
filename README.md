@@ -1,7 +1,11 @@
 # bigdata_test
 Transfrom Data using PySpark
 
-Simple Transformation
+#Files
+Pyspark(python code)
+Crealytics.csv(Data file)
+
+#Simple Transformation of Data
 
 date;type;value
 
@@ -19,7 +23,7 @@ date;type;value
 
 2016-07-04;impressions;10
 
-Data transformed to:
+#Data transformed to:
 
 date;impressions;clicks;conversions
 
