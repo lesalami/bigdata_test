@@ -1,0 +1,52 @@
+from pyspark.sql.types import *
+import pandas as pd
+
+
+# Read csv file
+data = sc.textFile('/FileStore/tables/k1xcs4qq1468754648252/crealytics.csv')
+
+#get header
+header = data.first()
+
+#replace sep from ';' to ',' to make it easier to read as csv
+#schemaString = header.replace(';',',')
+
+#get fields in header
+fields = [StructField(field_name, StringType(), True) for field_name in header.split(';')]
+
+#store fields in StructType as Schema
+schema = StructType(fields)
+
+#get exact header line
+getHeader = data.filter(lambda l: "date" in l)
+
+
+#remove header from file 
+noHeaderData=data.subtract(getHeader)
+
+#create RDD
+data_rdd = noHeaderData.map(lambda k: k.split(";")).map(lambda p: (p[0], p[1], p[2]))
+
+#Create Dataframe with schema
+data_df = sqlContext.createDataFrame(data_rdd, schema)
+#data_df.printSchema() to test whether Dataframe has correct values
+
+#register DF as table
+data_df.registerTempTable("mydata")
+
+#Groupby date,type and sum values and store in pandas DF to format the result
+groupdata=sqlContext.sql("SELECT date, type,SUM(value) as total FROM mydata GROUP BY date, type").toPandas()
+
+#store in pivot table to format result
+my_df = groupdata.pivot_table(index=['date'], columns='type').reset_index()
+my_df.columns = [tup[1] if tup[1] else tup[0] for tup in my_df.columns]
+
+#replace Nan with null
+my_df.fillna('null', inplace=True)
+
+#output file
+#my_df.to_csv('out.csv', index=False, sep=';', header=True)
+
+
+
+            
