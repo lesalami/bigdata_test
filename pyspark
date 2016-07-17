@@ -1,9 +1,16 @@
+
+from pyspark.sql import SQLContext
+from pyspark import SparkContext
 from pyspark.sql.types import *
 import pandas as pd
 
 
+
+
+sqlContext = SQLContext(sc)
+
 # Read csv file
-data = sc.textFile('/FileStore/tables/k1xcs4qq1468754648252/crealytics.csv')
+data = sc.textFile('<path to file>/crealytics.csv')
 
 #get header
 header = data.first()
